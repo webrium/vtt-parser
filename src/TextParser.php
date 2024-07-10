@@ -34,7 +34,7 @@ class TextParser
     }
   }
 
-  private function parser()
+  public function parse()
   {
 
 
@@ -44,6 +44,7 @@ class TextParser
       $line_start_content = false;
       $start_first_line = false;
       $array = [];
+      $ob = ['text'=>[], 'time'=>''];
 
       foreach ($lines as $key => $line) {
         $text = trim($line);
@@ -55,20 +56,27 @@ class TextParser
 
           if ($line_start_content == false) {
             $line_start_content = true;
+            $time = $this->extractTimestamps($text);
+            $ob['time'] = $time;
           }
 
         } else if ($line_start_content == true) {
           if (empty($text)) {
             $line_start_content = false;
+            $array[]=$ob;
+            $ob = ['text'=>[], 'time'=>''];
           } else {
-
-            $array[] = $text;
+            $ob['text'][] = $text;
           }
         } else if ($line_start_content == false && empty($text) && $start_first_line == true) {
           $this->errors[] = $key;
           $this->validation_text = false;
         }
 
+      }
+
+      if($start_first_line){
+        $array[]=$ob;
       }
 
       $this->init = true;
@@ -78,18 +86,52 @@ class TextParser
   }
 
 
+  private function extractTimestamps($vttTimestampString) {
+    // الگوی زمان
+    $timePattern = '/(\d{2}:\d{2}:\d{2}.\d{3})/';
+  
+    // مطابقت با الگو
+    if (preg_match_all($timePattern, $vttTimestampString, $matches)) {
+      // استخراج زمان ها
+      $startTime = $matches[1][0];
+      $endTime = $matches[1][1];
+  
+      // فرمت بندی زمان ها
+      $startTimeFormatted = $this->formatTime($startTime);
+      $endTimeFormatted = $this->formatTime($endTime);
+  
+      // ایجاد شیء
+      $timestamps = [
+        "start" => $startTimeFormatted,
+        "end" => $endTimeFormatted
+      ];
+  
+      return $timestamps;
+    } else {
+      // عدم تطابق الگو
+      return null;
+    }
+  }
+  
+  // تابع برای فرمت بندی زمان
+  private function formatTime($timeString) {
+    // جدا کردن اجزای زمان
+    $timeComponents = explode(':', $timeString);
+  
+    // فرمت بندی هر جزء
+    $formattedTime = sprintf('%02d:%02d:%02d', $timeComponents[0], $timeComponents[1], $timeComponents[2]);
+  
+    return $formattedTime;
+  }
+
+
   public function textValidation()
   {
     if ($this->init == false) {
-      $this->parser();
+      $this->parse();
     }
 
     return ['ok'=>$this->validation_text, 'errors'=>$this->errors];
-  }
-
-  public function getTextLines()
-  {
-    return $this->parser();
   }
 
 }

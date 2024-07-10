@@ -26,9 +26,9 @@ class textParserTests extends TestCase
     public function testTextParse(){
         $vtt = new TextParser;
         $vtt->openFile(__DIR__, 'test.vtt');
-        $lines = $vtt->getTextLines();
+        $lines = $vtt->parse();
 
-        $this->assertEquals($lines[count($lines)-1], 'FRANK!!!');
+        $this->assertEquals($lines[count($lines)-1]['text'][0], 'FRANK!!!');
     }
 
 
