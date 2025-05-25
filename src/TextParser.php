@@ -86,32 +86,38 @@ class TextParser
   }
 
 
-  private function extractTimestamps($vttTimestampString) {
-    // الگوی زمان
+private function extractTimestamps($vttTimestampString) {
+    // Regex pattern to match VTT timestamps
     $timePattern = '/(\d{2}:\d{2}:\d{2}.\d{3})/';
   
-    // مطابقت با الگو
+    // Find all timestamp matches in the string
     if (preg_match_all($timePattern, $vttTimestampString, $matches)) {
-      // استخراج زمان ها
-      $startTime = $matches[1][0];
-      $endTime = $matches[1][1];
+        // Validate that we have both start and end times
+        if (!isset($matches[1][0]) || empty($matches[1][0])) {
+            throw new InvalidArgumentException("Start time not found in timestamp string\nFile :".$this->full_path);
+        }
+        
+        if (!isset($matches[1][1]) || empty($matches[1][1])) {
+            throw new InvalidArgumentException("End time not found in timestamp string\nFile :".$this->full_path);
+        }
+        
+        $startTime = $matches[1][0];
+        $endTime = $matches[1][1];
   
-      // فرمت بندی زمان ها
-      $startTimeFormatted = $this->formatTime($startTime);
-      $endTimeFormatted = $this->formatTime($endTime);
+        // Format the timestamps
+        $startTimeFormatted = $this->formatTime($startTime);
+        $endTimeFormatted = $this->formatTime($endTime);
   
-      // ایجاد شیء
-      $timestamps = [
-        "start" => $startTimeFormatted,
-        "end" => $endTimeFormatted
-      ];
-  
-      return $timestamps;
+        // Return as associative array
+        return [
+            "start" => $startTimeFormatted,
+            "end" => $endTimeFormatted
+        ];
     } else {
-      // عدم تطابق الگو
-      return null;
+        // No timestamps found in the string
+        return null;
     }
-  }
+}
   
   // تابع برای فرمت بندی زمان
   private function formatTime($timeString) {
