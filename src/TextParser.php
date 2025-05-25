@@ -94,11 +94,11 @@ private function extractTimestamps($vttTimestampString) {
     if (preg_match_all($timePattern, $vttTimestampString, $matches)) {
         // Validate that we have both start and end times
         if (!isset($matches[1][0]) || empty($matches[1][0])) {
-            throw new InvalidArgumentException("Start time not found in timestamp string\nFile :".$this->full_path);
+            throw new \InvalidArgumentException("Start time not found in timestamp string\nFile :".$this->full_path);
         }
         
         if (!isset($matches[1][1]) || empty($matches[1][1])) {
-            throw new InvalidArgumentException("End time not found in timestamp string\nFile :".$this->full_path);
+            throw new \InvalidArgumentException("End time not found in timestamp string\nFile :".$this->full_path);
         }
         
         $startTime = $matches[1][0];
