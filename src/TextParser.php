@@ -109,8 +109,12 @@ class TextParser
      * @throws \InvalidArgumentException If timestamps are invalid
      */
     private function extractTimestamps($vttTimestampString) {
-        $timePattern = '/(\d{2}:\d{2}:\d{2}.\d{3})/';
-    
+        // WebVTT allows the hours component to be omitted when it is zero,
+        // e.g. "59:40.604" instead of "00:59:40.604". Cues can therefore mix
+        // the short (mm:ss.mmm) and full (hh:mm:ss.mmm) forms in the same
+        // file, most commonly right around the one-hour mark.
+        $timePattern = '/(\d{2,}:\d{2}:\d{2}\.\d{3}|\d{2}:\d{2}\.\d{3})/';
+
         if (preg_match_all($timePattern, $vttTimestampString, $matches)) {
             if (!isset($matches[1][0]) || empty($matches[1][0])) {
                 throw new \InvalidArgumentException(
@@ -141,6 +145,12 @@ class TextParser
      */
     private function formatTime($timeString) {
         $timeComponents = explode(':', $timeString);
+
+        // Short form (mm:ss.mmm) has no hours component; treat it as 0.
+        if (count($timeComponents) === 2) {
+            array_unshift($timeComponents, '00');
+        }
+
         return sprintf('%02d:%02d:%02d', $timeComponents[0], $timeComponents[1], $timeComponents[2]);
     }
 
