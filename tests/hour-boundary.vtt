@@ -1,0 +1,21 @@
+WEBVTT
+
+1
+00:59:00.000 --> 59:10.000
+Line entirely inside the short-form (hours omitted) region
+
+2
+59:10.000 --> 59:19.448
+Another short-form only cue
+
+3
+59:19.448 --> 59:40.604
+Both start and end omit the hours component
+
+4
+59:40.604 --> 01:00:00.940
+Mixed cue: short-form start, full-form end (the exact bug report)
+
+5
+01:00:00.940 --> 01:00:11.353
+Both start and end use the full hh:mm:ss.mmm form
